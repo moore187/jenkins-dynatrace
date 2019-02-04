@@ -126,7 +126,7 @@ pipeline {
 
                     println(json.toPrettyString())
 
-                    File file = new File ("./process.json")
+                    File file = new File("./process.json")
                     file << json.toString()
 
                     json = null
@@ -161,7 +161,7 @@ static def populateVersionMap(ArrayList<File> pomList) {
     pomList.each {
     def currentPom = new File(it.toString())
     def xml = new XmlParser().parse(currentPom)
-    def dependencylistGPath = xml.dependencies.dependency
+    def dependencyListGPath = xml.dependencies.dependency
     for (dependency in dependencyListGPath) {
         dependency.children().each {
             def childString = it.name().toString()
