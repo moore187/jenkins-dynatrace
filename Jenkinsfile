@@ -73,33 +73,38 @@ pipeline {
 
                 script {
 
-
                     PomList = populatePomList()
                     Map<String,String> pomVersions = populateVersionMap(PomList)
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(pomVersions, env.nexusURL)
                     Map<String,String> pomVersionsNew = populateVersionMap(PomList)
                     jsonText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies)
 
-                     jsonContent = jsonText
+                    jsonContent = jsonText
                 }
 
                 writeFile file: './file', text: jsonContent
             }
-
         }
 
         stage("Create New Deployment Version") {
+            steps{
+                sh """udclient -username ${username} -password ${password}
+                -weburl https://${urbancodeserver}/
+                createVersion
+                -component deployDynatrace
+                -name ${version}"""
+            }
+        }
+
+        stage("Add Files to Deployment Version") {
 
             steps{
-
-
                 sh """udclient -username ${username} -password ${password}
                 -weburl https://${urbancodeserver}/
                 addVersionFiles
                 -component deployDynatrace
                 -version ${version}
                 -base $WORKSPACE"""
-
             }
         }
 
