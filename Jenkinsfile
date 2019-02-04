@@ -33,8 +33,8 @@ pipeline {
                     </build>
                     <dependencies>
                         <dependency>
-                            <groupId>Testing</groupId>
-                            <artifactId>Testing</artifactId>
+                            <groupId>org.apache.geronimo.specs</groupId>
+                            <artifactId>geronimo-servlet_3.0_spec</artifactId>
                             <version>1.0</version>
                         </dependency>
                     </dependencies>
