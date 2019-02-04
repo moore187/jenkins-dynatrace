@@ -126,7 +126,7 @@ pipeline {
 
                     println(json.toPrettyString())
 
-                    File file = new File ("./process.json")
+                    File file = new File("./process.json")
                     file << json.toString()
 
                     json = null
