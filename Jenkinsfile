@@ -194,7 +194,7 @@ static def findVersionsOnNexus (Map versionMap, String nexusURL) {
     return versionMap
 }
 
-static def urbancodeFileWriter(Map<String,String> buildVersionMap, Map<String, Set> repoNames) {
+static def urbancodeFileWriter(Map<String, String> buildVersionMap, Map<String, Set> repoNames) {
     def jsonText = new File('./file').getText()
     def slurper = new JsonSlurper().parseText(jsonText)
     def json = new JsonBuilder(slurper)
