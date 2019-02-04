@@ -126,9 +126,9 @@ static def populatePomList() {
     def pomList = []
     def dir = new File(".")
     dir.eachFileRecurse (FileType.FILES) { file ->
-    if (file.getName() == "pom.xml") {
-        pomList << file
-    }
+        if (file.getName() == "pom.xml") {
+            pomList << file
+        }
     }
     println("PomList: ${pomList.toString()}")
     return pomList
