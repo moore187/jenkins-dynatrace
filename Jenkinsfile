@@ -63,6 +63,7 @@ pipeline {
                     jsonContent = json.toString()
                     json = null 
                 }
+                writeFile file: './file', text: jsonContent
             }
         }
 
