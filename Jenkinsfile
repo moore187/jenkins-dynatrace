@@ -6,6 +6,7 @@ pipeline {
     environment {
         jsonContent = ''
         nexusURL = 'http://ec2-3-8-162-84.eu-west-2.compute.amazonaws.com:8081'
+        JAVA_HOME = "/usr/bin/jvm/java"
     }
 
     agent any
