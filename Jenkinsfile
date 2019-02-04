@@ -64,7 +64,7 @@ pipeline {
                     Map<String,String> pomVersions = populateVersionMap(PomList)
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(pomVersions, env.nexusURL)
                     Map<String,String> pomVersionsNew = populateVersionMap(PomList)
-                    jsonText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies)
+                    jsonText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies, env.WORKSPACE)
 
                     jsonContent = jsonText
                 }
@@ -155,7 +155,7 @@ static def populateVersionMap(ArrayList<File> pomList) {
 
 static def findVersionsOnNexus (Map versionMap, String nexusURL) {
     Map<String, Set<String>> nexusSet = new HashMap<String, Set<String>>()
-    List<String> RepoNames = ["testRepo"]
+    List<String> RepoNames = []
     
     versionMap.each {
         def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
@@ -194,8 +194,8 @@ static def findVersionsOnNexus (Map versionMap, String nexusURL) {
     return versionMap
 }
 
-static def urbancodeFileWriter(Map<String, String> buildVersionMap, Map<String, Set> repoNames) {
-    def jsonText = new File('./file').getText()
+static def urbancodeFileWriter(Map<String, String> buildVersionMap, Map<String, Set> repoNames, String workspace) {
+    def jsonText = new File(workspace + '/file').getText()
     def slurper = new JsonSlurper().parseText(jsonText)
     def json = new JsonBuilder(slurper)
 
