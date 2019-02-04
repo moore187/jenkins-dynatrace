@@ -6,7 +6,7 @@ pipeline {
     environment {
         jsonContent = ''
         nexusURL = 'http://ec2-3-8-162-84.eu-west-2.compute.amazonaws.com:8081'
-        JAVA_HOME = "/usr/bin/jvm/java"
+        JAVA_HOME = "/usr/lib/jvm/java"
     }
 
     agent any
@@ -75,22 +75,23 @@ pipeline {
 
         stage("Create New Deployment Version") {
             steps{
-                sh """udclient -username ${username} -password ${password}
-                -weburl https://${urbancodeserver}/
-                createVersion
-                -component deployDynatrace
+                sh """udclient -username '${username}' -password '${password}' \
+                -weburl http://${urbancodeserver}\
+                 createVersion\
+                -component deployDynatrace \
                 -name ${version}"""
             }
         }
 
         stage("Add Files to Deployment Version") {
             steps{
-                sh """udclient -username ${username} -password ${password}
-                -weburl https://${urbancodeserver}/
-                addVersionFiles
-                -component deployDynatrace
-                -version ${version}
-                -base $WORKSPACE"""
+                sh """udclient -username '${username}' -password '${password}' \
+                -weburl http://${urbancodeserver} \
+                addVersionFiles \
+                -component deployDynatrace \
+                -version ${version} \
+                -base $WORKSPACE \
+                -include file"""
             }
         }
 
@@ -108,15 +109,16 @@ pipeline {
                     json.content.versions[0].putAt("version", "latest")
 
                     println(json.toPrettyString())
-
-                    File file = new File("./process.json")
-                    file << json.toString()
+                    
+                    //File file = new File('process.json')
+                    processJson = json.toString()
 
                     json = null
                 }
+                writeFile file: './process.json', text: processJson
 
                // sh """udclient -username ${username} -password ${password}
-               // -weburl https://${urbancodeserver}/
+               // -weburl https://${urbancodeserver}
                // requestApplicationProcess process.json"""
             }
         }
@@ -159,7 +161,7 @@ static def findVersionsOnNexus (Map versionMap, String nexusURL) {
     List<String> RepoNames = []
     
     versionMap.each {
-        def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
+        def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/beta/search?name=${it.key}").openConnection()
         def nexusApiRC = nexusApiUrlRequest.getResponseCode()
         def responseOutput = nexusApiUrlRequest.getInputStream().getText()
         if (nexusApiRC.equals(200)) {
