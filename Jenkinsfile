@@ -155,7 +155,7 @@ static def populateVersionMap(ArrayList<File> pomList) {
 
 static def findVersionsOnNexus (Map versionMap, String nexusURL) {
     Map<String, Set<String>> nexusSet = new HashMap<String, Set<String>>()
-    List<String> RepoNames = ["testReporegreg"]
+    List<String> RepoNames = ["testRepo"]
     
     versionMap.each {
         def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
@@ -172,25 +172,26 @@ static def findVersionsOnNexus (Map versionMap, String nexusURL) {
         nexusApiUrlRequest.disconnect()
     }
         
-        RepoNames.each {
-            String version = it.version
-            String lib = it.name
-            
-            println("${lib}:${version}")
-            
-            if (versionMap.containsKey(lib)){ 
-                Set set = new TreeSet<String>()
-                set.addAll(versionMap.get(lib))
-                set.add(version)
-                versionMap.replace(lib, set) 
-            } else {  
-                def set = new HashSet<String>()
-                set.add(version)
-                versionMap.replace(lib, version)
-            }
-            
-            println("VersionMap: ${versionMap.toString()}")
-        } 
+    RepoNames.each {
+        String version = it.version
+        String lib = it.name
+
+        println("${lib}:${version}")
+
+        if (versionMap.containsKey(lib)){
+            //Used treeset to guarantee insertion order, order comes from API return
+            Set set = new TreeSet<String>()
+            set.addAll(versionMap.get(lib))
+            set.add(version)
+            versionMap.replace(lib, set)
+        } else {
+            def set = new HashSet<String>()
+            set.add(version)
+            versionMap.put(lib, version)
+        }
+        println("VersionMap: ${versionMap.toString()}")
+    }
+    return versionMap
 }
 
 static def urbancodeFileWriter(Map<String,String> buildVersionMap, Map<String, Set> repoNames) {
