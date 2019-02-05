@@ -5,7 +5,8 @@ import groovy.json.JsonSlurper
 pipeline {
     environment {
         jsonContent = ''
-        nexusURL = 'http://ec2-3-8-162-84.eu-west-2.compute.amazonaws.com:8081'
+        jsonNexusContent = ''
+        nexusURL = 'http://ec2-3-8-15-34.eu-west-2.compute.amazonaws.com:8081/'
         JAVA_HOME = "/usr/lib/jvm/java"
     }
 
@@ -61,23 +62,28 @@ pipeline {
         stage("Nexus Scan") {
             steps {
                 script {
-                    PomList = populatePomList()
+                    PomList = populatePomList(env.WORKSPACE)
+                    sh "echo the Pom List is: ${PomList}"
                     Map<String,String> pomVersions = populateVersionMap(PomList)
+                    sh "echo the Pom versions are : ${pomVersions}"
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(pomVersions, env.nexusURL)
                     Map<String,String> pomVersionsNew = populateVersionMap(PomList)
-                    jsonText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies, env.WORKSPACE)
+                    jsonNexusText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies, env.WORKSPACE)
 
-                    jsonContent = jsonText
+                    jsonNexusContent = jsonNexusText
+                    sh "echo ${jsonNexusContent}"
                 }
-                writeFile file: './file', text: jsonContent
+                // writeFile file: './file', text: jsonContent
+                writeFile file: './nexusFile', text: jsonNexusContent
+
             }
         }
 
         stage("Create New Deployment Version") {
             steps{
                 sh """udclient -username '${username}' -password '${password}' \
-                -weburl http://${urbancodeserver}\
-                 createVersion\
+                -weburl http://${urbancodeserver} \
+                createVersion \
                 -component deployDynatrace \
                 -name ${version}"""
             }
@@ -125,9 +131,9 @@ pipeline {
     }
 }
 
-static def populatePomList() {
+static def populatePomList(String workspace) {
     def pomList = []
-    def dir = new File(".")
+    def dir = new File(workspace)
     dir.eachFileRecurse (FileType.FILES) { file ->
         if (file.getName() == "pom.xml") {
             pomList << file
