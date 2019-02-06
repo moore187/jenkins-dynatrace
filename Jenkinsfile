@@ -104,7 +104,7 @@ pipeline {
                     def json = new JsonBuilder(slurper)
 
                     json.content.putAt("application", "${env.applicationName}")
-                    json.content.putAt("applicationProcess", "Dynatrace Deployment")
+                    json.content.putAt("applicationProcess", "${env.applicationProcess}")
                     json.content.putAt("environment", "${env.environment}")
                     json.content.versions[0].putAt("component", "deployDynatrace")
                     json.content.versions[0].putAt("version", "latest")
@@ -116,9 +116,9 @@ pipeline {
                 }
                 writeFile file: './process.json', text: processJson
 
-               // sh """udclient -username ${username} -password ${password}
-               // -weburl https://${urbancodeserver}
-               // requestApplicationProcess process.json"""
+               sh """udclient -username ${username} -password ${password} \
+               -weburl http://${urbancodeserver} \
+               requestApplicationProcess process.json"""
             }
         }
     }
