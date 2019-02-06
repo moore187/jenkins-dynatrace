@@ -5,7 +5,8 @@ import groovy.json.JsonSlurper
 pipeline {
     environment {
         jsonContent = ''
-        nexusURL = 'http://ec2-3-8-162-84.eu-west-2.compute.amazonaws.com:8081'
+        jsonNexusContent = ''
+        nexusURL = 'http://ec2-3-8-15-34.eu-west-2.compute.amazonaws.com:8081'
         JAVA_HOME = "/usr/lib/jvm/java"
     }
 
@@ -61,23 +62,23 @@ pipeline {
         stage("Nexus Scan") {
             steps {
                 script {
-                    PomList = populatePomList()
+                    PomList = populatePomList(env.WORKSPACE)
                     Map<String,String> pomVersions = populateVersionMap(PomList)
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(pomVersions, env.nexusURL)
                     Map<String,String> pomVersionsNew = populateVersionMap(PomList)
-                    jsonText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies, env.WORKSPACE)
-
-                    jsonContent = jsonText
+                    jsonNexusText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies, env.WORKSPACE)
+                    jsonNexusContent = jsonNexusText
                 }
-                writeFile file: './file', text: jsonContent
+                writeFile file: './nexusFile', text: jsonNexusContent
+
             }
         }
 
         stage("Create New Deployment Version") {
             steps{
                 sh """udclient -username '${username}' -password '${password}' \
-                -weburl http://${urbancodeserver}\
-                 createVersion\
+                -weburl http://${urbancodeserver} \
+                createVersion \
                 -component deployDynatrace \
                 -name ${version}"""
             }
@@ -91,7 +92,7 @@ pipeline {
                 -component deployDynatrace \
                 -version ${version} \
                 -base $WORKSPACE \
-                -include file"""
+                -include nexusFile"""
             }
         }
 
@@ -108,9 +109,7 @@ pipeline {
                     json.content.versions[0].putAt("component", "deployDynatrace")
                     json.content.versions[0].putAt("version", "latest")
 
-                    println(json.toPrettyString())
-                    
-                    //File file = new File('process.json')
+                    println(json.toPrettyString())                    
                     processJson = json.toString()
 
                     json = null
@@ -125,15 +124,14 @@ pipeline {
     }
 }
 
-static def populatePomList() {
+static def populatePomList(workspace) {
     def pomList = []
-    def dir = new File(".")
+    def dir = new File(workspace)
     dir.eachFileRecurse (FileType.FILES) { file ->
         if (file.getName() == "pom.xml") {
             pomList << file
         }
     }
-    println("PomList: ${pomList.toString()}")
     return pomList
 }
 
@@ -142,17 +140,16 @@ static def populateVersionMap(ArrayList<File> pomList) {
     pomList.each {
         def currentPom = new File(it.toString())
         def xml = new XmlParser().parse(currentPom)
-        def dependencyListGPath = xml.dependencies.dependency
+        def dependencyListGPath = xml["dependencies"]["dependency"]
         for (dependency in dependencyListGPath) {
             dependency.children().each {
                 def childString = it.name().toString()
                 if (childString.indexOf("version") >= 0) {
-                    versionMapNew << [(dependency.artifactId.text()):it.text()]
+                    versionMapNew << [(dependency["artifactId"].text()):it.text()]
                 }
             }
         }
     }
-    println("VersionMap: ${versionMapNew.toString()}")
     return versionMapNew
 }
 
@@ -178,13 +175,10 @@ static def findVersionsOnNexus (Map versionMap, String nexusURL) {
     RepoNames.each {
         String version = it.version
         String lib = it.name
-
-        println("${lib}:${version}")
-
         if (versionMap.containsKey(lib)){
             //Used treeset to guarantee insertion order, order comes from API return
             Set set = new TreeSet<String>()
-            set.addAll(versionMap.get(lib))
+            set.add(versionMap.get(lib))
             set.add(version)
             versionMap.replace(lib, set)
         } else {
@@ -192,7 +186,6 @@ static def findVersionsOnNexus (Map versionMap, String nexusURL) {
             set.add(version)
             versionMap.put(lib, version)
         }
-        println("VersionMap: ${versionMap.toString()}")
     }
     return versionMap
 }
@@ -201,9 +194,6 @@ static def urbancodeFileWriter(Map<String, String> buildVersionMap, Map<String, 
     def jsonText = new File(workspace + '/file').getText()
     def slurper = new JsonSlurper().parseText(jsonText)
     def json = new JsonBuilder(slurper)
-
-    buildVersionMap.each {println(it)}
-
     buildVersionMap.each {
         json.content.customProperties.putAt("Current ${it.key} Version: ${it.value}", "Available ${it.key} Versions: ${repoNames[it.key]}")
     }
