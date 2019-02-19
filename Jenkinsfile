@@ -6,7 +6,11 @@ pipeline {
     environment {
         jsonContent = ''
         jsonNexusContent = ''
+<<<<<<< HEAD
         nexusURL = 'http://ec2-3-8-93-29.eu-west-2.compute.amazonaws.com:8081'
+=======
+        nexusURL = 'http://ec2-3-8-15-34.eu-west-2.compute.amazonaws.com:8081'
+>>>>>>> 7258bef04d450cf8b26e9e00426aea297962a807
         JAVA_HOME = "/usr/lib/jvm/java"
         //relative path of the pom.xml you want to read contents from.
         pomContents = ''
@@ -65,6 +69,7 @@ pipeline {
         stage("Nexus Scan") {
             steps {
                 script {
+<<<<<<< HEAD
                     pomContents = readFile file: './pom.xml'
                     println(pomContents.toString())
                     //Scans pom.xml file to get dependency names and versions and puts them into versionMapNew.
@@ -87,11 +92,23 @@ pipeline {
                     jsonNexusContent = jsonNexusText
                 }
                 writeFile file: './nexusFile', text: jsonNexusContent
+=======
+                    PomList = populatePomList(env.WORKSPACE)
+                    Map<String,String> pomVersions = populateVersionMap(PomList)
+                    Map<String, Set> ComparedDependencies = findVersionsOnNexus(pomVersions, env.nexusURL)
+                    Map<String,String> pomVersionsNew = populateVersionMap(PomList)
+                    jsonNexusText = urbancodeFileWriter(pomVersionsNew, ComparedDependencies, env.WORKSPACE)
+                    jsonNexusContent = jsonNexusText
+                }
+                writeFile file: './nexusFile', text: jsonNexusContent
+
+>>>>>>> 7258bef04d450cf8b26e9e00426aea297962a807
             }
         }
 
         stage("Create New Deployment Version") {
             steps{
+<<<<<<< HEAD
                 //Create a new version of the deployDynatrace component on Urbancode.
                 withCredentials([usernamePassword(credentialsId: 'yuliaucd', usernameVariable: 'UCDUSER', passwordVariable: 'UCDPASS')]) {
                     sh """udclient -username '$UCDUSER' -password '$UCDPASS' \
@@ -100,11 +117,19 @@ pipeline {
                     -component deployDynatrace \
                     -name ${version}"""
                 }
+=======
+                sh """udclient -username '${username}' -password '${password}' \
+                -weburl http://${urbancodeserver} \
+                createVersion \
+                -component deployDynatrace \
+                -name ${version}"""
+>>>>>>> 7258bef04d450cf8b26e9e00426aea297962a807
             }
         }
 
         stage("Add Files to Deployment Version") {
             steps{
+<<<<<<< HEAD
                 //Upload the created nexusFile into the deployDynatrace component version created in the previous step.
                 withCredentials([usernamePassword(credentialsId: 'yuliaucd', usernameVariable: 'UCDUSER', passwordVariable: 'UCDPASS')]) {
                     sh """udclient -username '$UCDUSER' -password '$UCDPASS' \
@@ -115,12 +140,22 @@ pipeline {
                     -base $WORKSPACE \
                     -include nexusFile"""
                 }
+=======
+                sh """udclient -username '${username}' -password '${password}' \
+                -weburl http://${urbancodeserver} \
+                addVersionFiles \
+                -component deployDynatrace \
+                -version ${version} \
+                -base $WORKSPACE \
+                -include nexusFile"""
+>>>>>>> 7258bef04d450cf8b26e9e00426aea297962a807
             }
         }
         
 
         stage("Start UCD Deployment") {
             steps{
+<<<<<<< HEAD
                 //Creates a file called process.json that will be sent as a put request to Urbancode to in ititiate deployment.
                 withCredentials([usernamePassword(credentialsId: 'yuliaucd', usernameVariable: 'UCDUSER', passwordVariable: 'UCDPASS')]) {
                     script{
@@ -145,12 +180,39 @@ pipeline {
                -weburl http://${urbancodeserver} \
                requestApplicationProcess process.json"""
                 }
+=======
+                script{
+                    String jsonText = "${env.UCDJSON}"
+                    def slurper = new JsonSlurper().parseText(jsonText)
+                    def json = new JsonBuilder(slurper)
+
+                    json.content.putAt("application", "${env.applicationName}")
+                    json.content.putAt("applicationProcess", "${env.applicationProcess}")
+                    json.content.putAt("environment", "${env.environment}")
+                    json.content.versions[0].putAt("component", "deployDynatrace")
+                    json.content.versions[0].putAt("version", "latest")
+
+                    println(json.toPrettyString())                    
+                    processJson = json.toString()
+
+                    json = null
+                }
+                writeFile file: './process.json', text: processJson
+
+               sh """udclient -username ${username} -password ${password} \
+               -weburl http://${urbancodeserver} \
+               requestApplicationProcess process.json"""
+>>>>>>> 7258bef04d450cf8b26e9e00426aea297962a807
             }
         }
     }
 }
 
+<<<<<<< HEAD
 static def populatePomList(String workspace) {
+=======
+static def populatePomList(workspace) {
+>>>>>>> 7258bef04d450cf8b26e9e00426aea297962a807
     def pomList = []
     def dir = new File(workspace)
     dir.eachFileRecurse (FileType.FILES) { file ->
@@ -161,6 +223,7 @@ static def populatePomList(String workspace) {
     return pomList
 }
 
+<<<<<<< HEAD
 // static def populateVersionMap(String workspace, ArrayList<File> pomList, String pomContents) {
 //     def versionMapNew = [:]
 //     def pomList = ['pom.xml']
@@ -181,6 +244,25 @@ static def populatePomList(String workspace) {
 //     }
 //     return versionMapNew
 // }
+=======
+static def populateVersionMap(ArrayList<File> pomList) {
+    def versionMapNew = [:]
+    pomList.each {
+        def currentPom = new File(it.toString())
+        def xml = new XmlParser().parse(currentPom)
+        def dependencyListGPath = xml["dependencies"]["dependency"]
+        for (dependency in dependencyListGPath) {
+            dependency.children().each {
+                def childString = it.name().toString()
+                if (childString.indexOf("version") >= 0) {
+                    versionMapNew << [(dependency["artifactId"].text()):it.text()]
+                }
+            }
+        }
+    }
+    return versionMapNew
+}
+>>>>>>> 7258bef04d450cf8b26e9e00426aea297962a807
 
 static def findVersionsOnNexus (Map versionMap, String nexusURL) {
     Map<String, Set<String>> nexusSet = new HashMap<String, Set<String>>()
