@@ -1,6 +1,8 @@
 import groovy.io.FileType
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import groovy.text.SimpleTemplateEngine
+
 
 pipeline {
     environment {
@@ -44,14 +46,7 @@ pipeline {
                     </dependencies>
                 </project>' > pom.xml
                 """
-                sh """
-                    echo '
-                    [
-                        {"f1":12345, "f2":"abcdfg"},
-                        {"f1":67890, "f2":"qwerty"}
-                    ]
-                    ' > test.json
-                """
+
                 script {
                     // Sets up the file with supplied vars from jenkins such as build number, name and build url, which will be sent to Dynatrace.
                     String jsonText = params.JSONFile
@@ -68,6 +63,44 @@ pipeline {
                     json = null 
                 }
                 writeFile file: './file', text: jsonContent
+            }
+        }
+
+        stage("Templating") {
+            steps {
+                // sh "groovy json_html_templating.groovy"
+                script {
+
+                    test_json = '[{"f1": 12345,"f2": "abcdfg"},{"f1": 67890,"f2": "qwerty"}]'
+
+                    template_text = '''
+                    <table>
+                        <tr>
+                            <td>f1</td>
+                            <td>f2</td>
+                        </tr>
+                        <% for(r in data) { %>
+                        <tr>
+                            <td><%= r.f1 %></td>
+                            <td><%= r.f2 %></td>
+                        </tr>
+                        <% } %>
+                    </table>
+                    '''
+
+                    def slurped_json = new JsonSlurper().parseText(test_json)
+                    println("Slupred is " + slurped_json)
+
+                    // Create Engine
+                    def engine = new groovy.text.SimpleTemplateEngine()
+
+                    //Create template and generate text through make() method
+                    def template = engine.createTemplate(template_text).make(data:slurped_json)
+                    println template.toString()
+
+                    println("We Got Here!")
+
+                }
             }
         }
 
