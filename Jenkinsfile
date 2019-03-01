@@ -8,7 +8,7 @@ pipeline {
     environment {
         jsonContent = ''
         jsonNexusContent = ''
-        nexusURL = 'http://ec2-3-8-232-85.eu-west-2.compute.amazonaws.com:8081'
+        nexusURL = 'http://ec2-52-56-158-41.eu-west-2.compute.amazonaws.com:8081'
         JAVA_HOME = "/usr"
         //relative path of the pom.xml you want to read contents from.
         pomContents = ''
@@ -66,9 +66,42 @@ pipeline {
             }
         }
 
+        stage("Nexus Scan") {
+            steps {
+                script {
+                    pomList = sh(script: "find . -name 'pom.xml'", returnStdout: true).split("\n")
+                    echo "POM list : ${pomList}"
+                    def pomContents = ''
+                    versionMap = generateMap()
+                    for(pom in pomList) {
+                        pomContents = readFile(pom.toString())
+                        def xml = new XmlParser().parseText(pomContents)
+                        def dependencyListGPath = xml["dependencies"]["dependency"]
+                        for (dependency in dependencyListGPath) {
+                            for(child in dependency.children()) {
+                                def childString = child.name().toString()
+                                if (childString.indexOf("version") >= 0) {
+                                    versionMap << [(dependency["artifactId"].text()):child.text()]
+                                }
+                            }
+                        }
+                    }
+                    // }
+                    println(versionMap.toString())
+                    //versionMapNew = versionMap
+                    //Scans Nexus server for available versions of declared dependencies.
+                    Map<String, Set> ComparedDependencies = findVersionsOnNexus(versionMap, env.nexusURL)
+                    String fileContents = readFile file:'./file'
+                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, fileContents)
+                }
+                writeFile file: './nexusFile', text: jsonNexusContent
+            }
+        }
+    }
+}
+
         stage("Templating") {
             steps {
-                // sh "groovy json_html_templating.groovy"
                 script {
 
                     test_json = '[{"f1": 12345,"f2": "abcdfg"},{"f1": 67890,"f2": "qwerty"}]'
@@ -104,39 +137,6 @@ pipeline {
             }
         }
 
-        stage("Nexus Scan") {
-            steps {
-                script {
-                    pomList = sh(script: "find . -name 'pom.xml'", returnStdout: true).split("\n")
-                    echo "POM list : ${pomList}"
-                    def pomContents = ''
-                    versionMap = generateMap()
-                    for(pom in pomList) {
-                        pomContents = readFile(pom.toString())
-                        def xml = new XmlParser().parseText(pomContents)
-                        def dependencyListGPath = xml["dependencies"]["dependency"]
-                        for (dependency in dependencyListGPath) {
-                            for(child in dependency.children()) {
-                                def childString = child.name().toString()
-                                if (childString.indexOf("version") >= 0) {
-                                    versionMap << [(dependency["artifactId"].text()):child.text()]
-                                }
-                            }
-                        }
-                    }
-                    // }
-                    println(versionMap.toString())
-                    //versionMapNew = versionMap
-                    //Scans Nexus server for available versions of declared dependencies.
-                    Map<String, Set> ComparedDependencies = findVersionsOnNexus(versionMap, env.nexusURL)
-                    String fileContents = readFile file:'./file'
-                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, fileContents)
-                }
-                writeFile file: './nexusFile', text: jsonNexusContent
-            }
-        }
-    }
-}
 
 static def findVersionsOnNexus(Map versionMapIn, String nexusURL) {
     def versionMapOut = versionMapIn.clone()
