@@ -8,6 +8,7 @@ pipeline {
     environment {
         jsonContent = ''
         jsonNexusContent = ''
+        template = ''
         nexusURL = 'http://ec2-52-56-158-41.eu-west-2.compute.amazonaws.com:8081'
         JAVA_HOME = "/usr"
         //relative path of the pom.xml you want to read contents from.
@@ -91,52 +92,40 @@ pipeline {
                     //versionMapNew = versionMap
                     //Scans Nexus server for available versions of declared dependencies.
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(versionMap, env.nexusURL)
-                    String fileContents = readFile file:'./file'
+                    String fileContents = readFile file: './file'
                     jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, fileContents)
                 }
-                writeFile file: './nexusFile', text: jsonNexusContent
             }
         }
-    }
-}
-
         stage("Templating") {
             steps {
                 script {
-
-                    test_json = '[{"f1": 12345,"f2": "abcdfg"},{"f1": 67890,"f2": "qwerty"}]'
-
-                    template_text = '''
+                    templateText = '''
                     <table>
+                        <% for(r in data.customProperties) { %>
                         <tr>
-                            <td>f1</td>
-                            <td>f2</td>
-                        </tr>
-                        <% for(r in data) { %>
-                        <tr>
-                            <td><%= r.f1 %></td>
-                            <td><%= r.f2 %></td>
+                            <td><%= r.key %></td>
+                            <td><%= r.value %></td>
                         </tr>
                         <% } %>
                     </table>
                     '''
-
-                    def slurped_json = new JsonSlurper().parseText(test_json)
-                    println("Slupred is " + slurped_json)
+                    def slurpedJson = new JsonSlurper().parseText(jsonNexusContent)
 
                     // Create Engine
                     def engine = new groovy.text.SimpleTemplateEngine()
 
                     //Create template and generate text through make() method
-                    def template = engine.createTemplate(template_text).make(data:slurped_json)
-                    println template.toString()
-
-                    println("We Got Here!")
-
+                    def template = engine.createTemplate(templateText).make(data: slurpedJson)
+                    println feedTemplate = template.toString()
+                    // println feedTemplate
                 }
+                writeFile file: './dependencyComparison.html', text: feedTemplate
+                archiveArtifacts(artifacts: 'dependencyComparison.html', fingerprint: true)
             }
         }
-
+    }
+}
 
 static def findVersionsOnNexus(Map versionMapIn, String nexusURL) {
     def versionMapOut = versionMapIn.clone()
