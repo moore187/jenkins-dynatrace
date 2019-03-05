@@ -8,14 +8,14 @@ import groovy.text.SimpleTemplateEngine
 pipeline {
     agent any
     environment {
-        server = 'Super server'
+        name = 'YULIYA'
         port = '8080808080'
     }
     stages {
         stage ('Greeting') {
             steps {
                 sh "echo 'Hello world'"
-                helloWorld 'Five!Any time travelling tonight?'
+                helloWorld name'
             }
         }
     }
