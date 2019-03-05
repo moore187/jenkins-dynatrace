@@ -10,7 +10,7 @@ pipeline {
         stage ('Dependency search') {
             steps {
                 sh "echo Looking for dependencies in Nexus"
-                nexusDepsTool ["nexusURL": "$nexusURL", "JAVA_HOME":"$JAVA_HOME"]
+                nexusDepsTool (["nexusURL": "$nexusURL", "JAVA_HOME":"$JAVA_HOME"])
             }
         }
     }
