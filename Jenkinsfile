@@ -1,9 +1,4 @@
 @Library('nexus-dependency-search')_
-import groovy.io.FileType
-import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
-import groovy.text.SimpleTemplateEngine
-
 
 pipeline {
     agent any
