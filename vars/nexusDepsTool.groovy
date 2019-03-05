@@ -4,8 +4,8 @@ def call(Map pipelineParams) {
         jsonContent = ''
         jsonNexusContent = ''
         template = ''
-        nexusURL = 'http://ec2-52-56-158-41.eu-west-2.compute.amazonaws.com:8081'
-        JAVA_HOME = "/usr"
+        // nexusURL = 'http://ec2-52-56-158-41.eu-west-2.compute.amazonaws.com:8081'
+        // JAVA_HOME = "/usr"
         //relative path of the pom.xml you want to read contents from.
         pomContents = ''
         // versionMapNew = generateMap()
