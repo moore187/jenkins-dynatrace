@@ -15,7 +15,7 @@ pipeline {
         stage ('Greeting') {
             steps {
                 sh "echo 'Hello world'"
-                helloWorld name'
+                helloWorld name
             }
         }
     }
