@@ -13,7 +13,7 @@ pipeline {
     }
     stages {
         stage ('Greeting') {
-            echo 'Hello world'
+            sh "echo 'Hello world'"
             helloWorld 'Five!Any time travelling tonight?'
         }
     }
