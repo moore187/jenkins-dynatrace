@@ -1,3 +1,4 @@
+@Library('hello_you_library')_
 import groovy.io.FileType
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
@@ -10,12 +11,9 @@ pipeline {
         server = 'Super server'
         port = '8080808080'
     }
-    stages {
-        stage ('hello world') {
-            steps {
-                helloWorld(server, port)
-            }
-        }
+    stage ('Greeting') {
+        echo 'Hello world'
+        helloWorld 'Five!Any time travelling tonight?'
     }
 }
 
