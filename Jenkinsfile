@@ -11,9 +11,11 @@ pipeline {
         server = 'Super server'
         port = '8080808080'
     }
-    stage ('Greeting') {
-        echo 'Hello world'
-        helloWorld 'Five!Any time travelling tonight?'
+    stages {
+        stage ('Greeting') {
+            echo 'Hello world'
+            helloWorld 'Five!Any time travelling tonight?'
+        }
     }
 }
 
