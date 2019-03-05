@@ -12,7 +12,9 @@ pipeline {
     }
     stages {
         stage ('hello world') {
-            helloWorld(server, port)
+            steps {
+                helloWorld(server, port)
+            }
         }
     }
 }
