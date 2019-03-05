@@ -1,4 +1,3 @@
-// @Library('hello_you_library')_
 @Library('nexus-dependency-search')_
 import groovy.io.FileType
 import groovy.json.JsonBuilder
@@ -13,13 +12,6 @@ pipeline {
         JAVA_HOME = "/usr"
     }
     stages {
-        // stage ('Greeting') {
-        //     steps {
-        //         sh "echo 'Hello world'"
-        //         helloWorld name
-        //     }
-        // }
-
         stage ('Dependency search') {
             steps {
                 sh "echo Looking for dependencies in Nexus"
