@@ -11,8 +11,6 @@ pipeline {
         jsonNexusContent = ''
         template = ''
         nexusURL = "${nexusURL}"
-
-        // nexusURL = 'http://ec2-34-242-203-71.eu-west-1.compute.amazonaws.com:8081/nexus'
         JAVA_HOME = "/usr"
         //relative path of the pom.xml you want to read contents from.
         pomContents = ''
@@ -55,7 +53,6 @@ pipeline {
         stage("Nexus Scan") {
             steps {
                 script {
-                    println('Nexus URL is: ' + env.nexusURL)
                     pomList = sh(script: "find . -name 'pom.xml'", returnStdout: true).split("\n")
                     echo "POM list : ${pomList}"
                     def pomContents = ''
