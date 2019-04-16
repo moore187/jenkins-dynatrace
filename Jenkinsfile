@@ -55,6 +55,7 @@ pipeline {
         stage("Nexus Scan") {
             steps {
                 script {
+                    printls('Nexus URL is: ' + env.nexusURL)
                     pomList = sh(script: "find . -name 'pom.xml'", returnStdout: true).split("\n")
                     echo "POM list : ${pomList}"
                     def pomContents = ''
