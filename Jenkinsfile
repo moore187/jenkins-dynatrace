@@ -10,7 +10,7 @@ pipeline {
         jsonContent = ''
         jsonNexusContent = ''
         template = ''
-        nexusURL = nexusURL
+        nexusURL = "${nexusURL}"
 
         // nexusURL = 'http://ec2-34-242-203-71.eu-west-1.compute.amazonaws.com:8081/nexus'
         JAVA_HOME = "/usr"
