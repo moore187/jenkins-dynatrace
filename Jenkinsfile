@@ -10,7 +10,7 @@ pipeline {
         jsonContent = ''
         jsonNexusContent = ''
         template = ''
-        nexusURL = 'http://ec2-3-8-89-220.eu-west-2.compute.amazonaws.com:8081'
+        nexusURL = 'http://ec2-34-242-203-71.eu-west-1.compute.amazonaws.com:8081/nexus'
         JAVA_HOME = "/usr"
         //relative path of the pom.xml you want to read contents from.
         pomContents = ''
