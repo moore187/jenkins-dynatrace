@@ -21,7 +21,7 @@ pipeline {
         stage("Set up Files") {
             steps {
                 sh """
-                echo '<?xml version="1.0" encoding="UTF-8"?>
+                echo '''<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -141,7 +141,7 @@ pipeline {
     <build>
         <resources>
             <resource>
-                <directory>\${project.basedir}/src/main/resources</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
             </resource>
             <resource>
                 <directory>${project.basedir}</directory>
@@ -571,7 +571,7 @@ pipeline {
             </build>
         </profile>
     </profiles>
-</project>' > pom.xml
+</project>''' > pom.xml
                 """
             }
         }
