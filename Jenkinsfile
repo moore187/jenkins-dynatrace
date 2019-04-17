@@ -21,7 +21,7 @@ pipeline {
         stage("Set up Files") {
             steps {
                 sh """
-                echo '''<?xml version="1.0" encoding="UTF-8"?>
+                echo '<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -141,10 +141,10 @@ pipeline {
     <build>
         <resources>
             <resource>
-                <directory>${project.basedir}/src/main/resources</directory>
+                <directory>\${project.basedir}/src/main/resources</directory>
             </resource>
             <resource>
-                <directory>${project.basedir}</directory>
+                <directory>\${project.basedir}</directory>
                 <includes>
                     <include>LICENSE-junit.txt</include>
                 </includes>
@@ -182,15 +182,15 @@ pipeline {
                             <rules>
                                 <requireMavenVersion>
                                     <!-- Some plugin features require a recent Maven runtime to work properly -->
-                                    <message>Current version of Maven ${maven.version} required to build the project
-                                        should be ${project.prerequisites.maven}, or higher!
+                                    <message>Current version of Maven \${maven.version} required to build the project
+                                        should be \${project.prerequisites.maven}, or higher!
                                     </message>
-                                    <version>[${project.prerequisites.maven},)</version>
+                                    <version>[\${project.prerequisites.maven},)</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <message>Current JDK version ${java.version} should be ${jdkVersion}, or higher!
+                                    <message>Current JDK version \${java.version} should be \${jdkVersion}, or higher!
                                     </message>
-                                    <version>${jdkVersion}</version>
+                                    <version>\${jdkVersion}</version>
                                 </requireJavaVersion>
                                 <requireNoRepositories>
                                     <message>Best Practice is to never define repositories in pom.xml (use a repository
@@ -226,7 +226,7 @@ pipeline {
                     <outputFile>src/main/java/junit/runner/Version.java</outputFile>
                     <regex>false</regex>
                     <token>@version@</token>
-                    <value>${project.version}</value>
+                    <value>\${project.version}</value>
                 </configuration>
             </plugin>
             <plugin><!-- Using jdk 1.5.0_22, package-info.java files are compiled correctly. -->
@@ -236,11 +236,11 @@ pipeline {
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <source>${jdkVersion}</source>
-                    <target>${jdkVersion}</target>
-                    <testSource>${jdkVersion}</testSource>
-                    <testTarget>${jdkVersion}</testTarget>
+                    <encoding>\${project.build.sourceEncoding}</encoding>
+                    <source>\${jdkVersion}</source>
+                    <target>\${jdkVersion}</target>
+                    <testSource>\${jdkVersion}</testSource>
+                    <testTarget>\${jdkVersion}</testTarget>
                     <compilerVersion>1.5</compilerVersion>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
@@ -303,7 +303,7 @@ pipeline {
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
                 <configuration>
-                    <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
+                    <stylesheetfile>\${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
                     <show>protected</show>
                     <author>false</author>
                     <version>false</version>
@@ -314,11 +314,11 @@ pipeline {
                     <windowtitle>JUnit API</windowtitle>
                     <encoding>UTF-8</encoding>
                     <locale>en</locale>
-                    <javadocVersion>${jdkVersion}</javadocVersion>
+                    <javadocVersion>\${jdkVersion}</javadocVersion>
                     <javaApiLinks>
                         <property>
-                            <name>api_${jdkVersion}</name>
-                            <value>http://docs.oracle.com/javase/${jdkVersion}.0/docs/api/</value>
+                            <name>api_\${jdkVersion}</name>
+                            <value>http://docs.oracle.com/javase/\${jdkVersion}.0/docs/api/</value>
                         </property>
                     </javaApiLinks>
                     <excludePackageNames>junit.*,*.internal.*</excludePackageNames>
@@ -338,7 +338,7 @@ pipeline {
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <useReleaseProfile>false</useReleaseProfile>
-                    <arguments>-Pgenerate-docs,junit-release ${arguments}</arguments>
+                    <arguments>-Pgenerate-docs,junit-release \${arguments}</arguments>
                     <tagNameFormat>r@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
@@ -407,7 +407,7 @@ pipeline {
                 <version>2.9.1</version>
                 <configuration>
                     <destDir>javadoc/latest</destDir>
-                    <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
+                    <stylesheetfile>\${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
                     <show>protected</show>
                     <author>false</author>
                     <version>false</version>
@@ -418,11 +418,11 @@ pipeline {
                     <windowtitle>JUnit API</windowtitle>
                     <encoding>UTF-8</encoding>
                     <locale>en</locale>
-                    <javadocVersion>${jdkVersion}</javadocVersion>
+                    <javadocVersion>\${jdkVersion}</javadocVersion>
                     <javaApiLinks>
                         <property>
-                            <name>api_${jdkVersion}</name>
-                            <value>http://docs.oracle.com/javase/${jdkVersion}.0/docs/api/</value>
+                            <name>api_\${jdkVersion}</name>
+                            <value>http://docs.oracle.com/javase/\${jdkVersion}.0/docs/api/</value>
                         </property>
                     </javaApiLinks>
                     <excludePackageNames>junit.*,*.internal.*</excludePackageNames>
@@ -571,7 +571,7 @@ pipeline {
             </build>
         </profile>
     </profiles>
-</project>''' > pom.xml
+</project>' > pom.xml
                 """
             }
         }
