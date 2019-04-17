@@ -211,7 +211,9 @@ static def findVersionsOnNexus(Map versionMapIn, String nexusURL) {
     
     versionMapOut.each {
         // def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/beta/search?name=${it.key}").openConnection()
-        def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
+        // def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
+        def nexusApiUrlRequest = new URL("http://localhost:8888/service/rest/v1/search?name=junit").openConnection()
+
         println("nexusApiUrlRequest is: " + nexusApiUrlRequest)
         def nexusApiRC = nexusApiUrlRequest.getResponseCode()
         def responseOutput = nexusApiUrlRequest.getInputStream().getText()
