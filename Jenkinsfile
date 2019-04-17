@@ -74,8 +74,11 @@ pipeline {
                     println(versionMap.toString())
                     //Scans Nexus server for available versions of declared dependencies.
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(versionMap, env.nexusURL)
+                    
                     // Writes current and available dependencies to a json file.
-                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, params.JSONFile )
+                    String fileContent = "{\"customProperties\":{}}"
+                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, fileContent )
+                    // jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, params.JSONFile )
                 }
             }
         }
