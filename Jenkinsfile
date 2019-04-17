@@ -22,122 +22,30 @@ pipeline {
             steps {
                 sh """
                 echo '<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <version>4.12</version>
-
-    <name>JUnit</name>
-    <description>JUnit is a unit testing framework for Java, created by Erich Gamma and Kent Beck.</description>
-    <url>http://junit.org</url>
-    <inceptionYear>2002</inceptionYear>
-    <organization>
-        <name>JUnit</name>
-        <url>http://www.junit.org</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>Eclipse Public License 1.0</name>
-            <url>http://www.eclipse.org/legal/epl-v10.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>dsaff</id>
-            <name>David Saff</name>
-            <email>david@saff.net</email>
-        </developer>
-        <developer>
-            <id>kcooney</id>
-            <name>Kevin Cooney</name>
-            <email>kcooney@google.com</email>
-        </developer>
-        <developer>
-            <id>stefanbirkner</id>
-            <name>Stefan Birkner</name>
-            <email>mail@stefan-birkner.de</email>
-        </developer>
-        <developer>
-            <id>marcphilipp</id>
-            <name>Marc Philipp</name>
-            <email>mail@marcphilipp.de</email>
-        </developer>
-    </developers>
-    <contributors>
-        <contributor>
-            <name>JUnit contributors</name>
-            <organization>JUnit</organization>
-            <email>junit@yahoogroups.com</email>
-            <url>https://github.com/junit-team/junit/graphs/contributors</url>
-            <roles>
-                <role>developers</role>
-            </roles>
-        </contributor>
-    </contributors>
-
-    <mailingLists>
-        <mailingList>
-            <name>JUnit Mailing List</name>
-            <post>junit@yahoogroups.com</post>
-            <archive>https://groups.yahoo.com/neo/groups/junit/info</archive>
-        </mailingList>
-    </mailingLists>
-
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
-
-    <scm>
-        <connection>scm:git:git://github.com/junit-team/junit.git</connection>
-        <developerConnection>scm:git:git@github.com:junit-team/junit.git</developerConnection>
-        <url>http://github.com/junit-team/junit/tree/master</url>
-      <tag>r4.12</tag>
-  </scm>
-    <issueManagement>
-        <system>github</system>
-        <url>https://github.com/junit-team/junit/issues</url>
-    </issueManagement>
-    <ciManagement>
-        <system>jenkins</system>
-        <url>https://junit.ci.cloudbees.com/</url>
-    </ciManagement>
-    <distributionManagement>
-        <downloadUrl>https://github.com/junit-team/junit/wiki/Download-and-Install</downloadUrl>
-        <snapshotRepository>
-            <id>junit-snapshot-repo</id>
-            <name>Nexus Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>junit-releases-repo</id>
-            <name>Nexus Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-        <site>
-            <id>junit.github.io</id>
-            <url>gitsite:git@github.com/junit-team/junit.git</url>
-        </site>
-    </distributionManagement>
-
-    <properties>
-        <jdkVersion>1.5</jdkVersion>
-        <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
-        <arguments />
-        <gpg.keyname>67893CC4</gpg.keyname>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <version>1.3</version>
-        </dependency>
-    </dependencies>
-</project>' > pom.xml
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>groupId</groupId>
+                    <artifactId>HTTPGateway</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-surefire-plugin</artifactId>
+                                <version>2.18.1</version>
+                            </plugin>
+                        </plugins>
+                    </build>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.specs</groupId>
+                            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+                            <version>1.0</version>
+                        </dependency>
+                    </dependencies>
+                </project>' > pom.xml
                 """
             }
         }
@@ -211,9 +119,7 @@ static def findVersionsOnNexus(Map versionMapIn, String nexusURL) {
     
     versionMapOut.each {
         // def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/beta/search?name=${it.key}").openConnection()
-        // def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
-        def nexusApiUrlRequest = new URL("http://localhost:8888/service/rest/v1/search?name=junit").openConnection()
-
+        def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
         println("nexusApiUrlRequest is: " + nexusApiUrlRequest)
         def nexusApiRC = nexusApiUrlRequest.getResponseCode()
         def responseOutput = nexusApiUrlRequest.getInputStream().getText()
