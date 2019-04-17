@@ -141,7 +141,7 @@ pipeline {
     <build>
         <resources>
             <resource>
-                <directory>${project.basedir}/src/main/resources</directory>
+                <directory>\${project.basedir}/src/main/resources</directory>
             </resource>
             <resource>
                 <directory>${project.basedir}</directory>
