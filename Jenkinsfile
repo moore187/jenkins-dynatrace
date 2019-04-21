@@ -13,7 +13,6 @@ pipeline {
         nexusURL = "${nexusURL}"
         JAVA_HOME = "/usr"
         //relative path of the pom.xml you want to read contents from.
-        pomContents = ''
     }
 
     agent {label 'Node1'}
@@ -58,6 +57,14 @@ pipeline {
                     def pomContents = ''
                     versionMap = generateMap()
                     for(pom in pomList) {
+                        // Reading dependency names and versions from a pom.xml by using the Pipeline utility plugin
+                        readPom = readMavenPom file: '';
+                        depName = readPom.dependencies.artifactId
+                        depVersion = readPom.dependencies.version
+                        println("Dependency name is: " + depName)
+                        println("Version is: " + depVersion)
+
+                        // the more complex way to do the above
                         pomContents = readFile(pom.toString())
                         def xml = new XmlParser().parseText(pomContents)
                         def dependencyListGPath = xml["dependencies"]["dependency"]
@@ -77,7 +84,7 @@ pipeline {
                     
                     // Writes current and available dependencies to a json file.
                     String fileContent = "{\"customProperties\":{}}"
-                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, fileContent )
+                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, w )
                     // jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, params.JSONFile )
                 }
             }
