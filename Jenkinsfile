@@ -43,6 +43,11 @@ pipeline {
                             <artifactId>geronimo-servlet_3.0_spec</artifactId>
                             <version>1.0</version>
                         </dependency>
+                        <dependency>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <version>2.18.1</version>
+                        </dependency>
                     </dependencies>
                 </project>' > pom.xml
                 """
@@ -84,7 +89,7 @@ pipeline {
                     
                     // Writes current and available dependencies to a json file.
                     String fileContent = "{\"customProperties\":{}}"
-                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, w )
+                    jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, fileContent )
                     // jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, params.JSONFile )
                 }
             }
