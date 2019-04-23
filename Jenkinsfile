@@ -161,7 +161,7 @@ static def dependencyJsonWriter(Map<String, String> buildVersionMap, Map<String,
     def json = new JsonBuilder(slurper)
     json.content.jenkinsBuildNumber.putAt("Jenkins Build Number", "${buildNumber}")
     buildVersionMap.each {
-        json.content.customProperties.putAt("Dependency: ${it.key} Current version: ${it.value}", "Available versions: ${repoNames[it.key]}")
+        json.content.customProperties.putAt("Dependency: ${it.key} ${it.value}", "${repoNames[it.key]}")
     }
     json = json.toString()
     return json
