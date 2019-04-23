@@ -146,7 +146,7 @@ static def findVersionsOnNexus(Map versionMapIn, String nexusURL) {
         String dependencyName = it.key
         repoNames.each {
             String version = it.version
-            String oib = it.name
+            String lib = it.name
             if (lib == dependencyName) {
                 set.add(version)
             }
