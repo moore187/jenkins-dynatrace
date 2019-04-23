@@ -62,19 +62,16 @@ pipeline {
                     versionMap = generateMap()
                     readPom = readMavenPom file: '';
                     for(pom in pomList) {
-                        // Reading dependency names and versions from a pom.xml by using the Pipeline utility plugin
+                        // Read dependency names and versions from a pom.xml by using the Pipeline Utility Steps plugin
                         for ( dependency in readPom.dependencies) {
                             versionMap << [(dependency.artifactId):dependency.version]
                         }
                     }
-                    println(versionMap.toString())
                     //Scans Nexus server for available versions of declared dependencies.
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(versionMap, env.nexusURL)
                     
-                    // Writes current and available dependencies to a json file.
                     String fileContent = "{\"customProperties\":{}}"
                     jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, fileContent )
-                    // jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, params.JSONFile )
                 }
             }
         }
@@ -99,7 +96,6 @@ pipeline {
 
                     // Create Engine
                     def engine = new groovy.text.SimpleTemplateEngine()
-
                     //Create template and generate text through make() method
                     def template = engine.createTemplate(templateText).make(data: slurpedJson)
                     println feedTemplate = template.toString()
@@ -155,6 +151,7 @@ static def generateMap() {
     return [:]
 }
 
+// Writes current and available dependencies to a json file.
 static def dependencyJsonWriter(Map<String, String> buildVersionMap, Map<String, Set> repoNames, buildNumber, paramsJsonfile) {
     String jsonText = paramsJsonfile
     def slurper = new JsonSlurper().parseText(jsonText)
