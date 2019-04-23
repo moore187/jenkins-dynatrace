@@ -70,7 +70,7 @@ pipeline {
                     //Scans Nexus server for available versions of declared dependencies.
                     Map<String, Set> ComparedDependencies = findVersionsOnNexus(versionMap, env.nexusURL)
                     
-                    String fileContent = "{\"customProperties\":{}}"
+                    String fileContent = "{\"customProperties\":{}, \"jenkinsBuildNumber\":{}}"
                     jsonNexusContent = dependencyJsonWriter(versionMap, ComparedDependencies, env.BUILD_NUMBER, fileContent )
                 }
             }
@@ -80,6 +80,9 @@ pipeline {
                 script {
                     templateText = '''
                     <table>
+                        <tr>
+                            <%= data.jenkinsBuildNumber %>
+                        </tr>
                         <tr>
                             <td>Current version</td>
                             <td>Available versions</td>
@@ -156,10 +159,10 @@ static def dependencyJsonWriter(Map<String, String> buildVersionMap, Map<String,
     String jsonText = paramsJsonfile
     def slurper = new JsonSlurper().parseText(jsonText)
     def json = new JsonBuilder(slurper)
+    json.content.jenkinsBuildNumber.putAt("Jenkins Build Number", "${buildNumber}")
     buildVersionMap.each {
         json.content.customProperties.putAt("Dependency: ${it.key} Current version: ${it.value}", "Available versions: ${repoNames[it.key]}")
     }
-    json.content.customProperties.putAt("Jenkins Build Number", "${buildNumber}")
     json = json.toString()
     return json
 }
