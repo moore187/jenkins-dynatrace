@@ -120,12 +120,11 @@ pipeline {
 static def findVersionsOnNexus(Map versionMapIn, String nexusURL) {
     def versionMapOut = versionMapIn.clone()
     Map<String, Set<String>> nexusSet = new HashMap<String, Set<String>>()
-    List<String> RepoNames = []
+    def repoNames = []
     
     versionMapOut.each {
         // def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/beta/search?name=${it.key}").openConnection()
         def nexusApiUrlRequest = new URL("${nexusURL}/service/rest/v1/search?name=${it.key}").openConnection()
-        println("nexusApiUrlRequest is: " + nexusApiUrlRequest)
         def nexusApiRC = nexusApiUrlRequest.getResponseCode()
         def responseOutput = nexusApiUrlRequest.getInputStream().getText()
         if (nexusApiRC.equals(200)) {
@@ -135,26 +134,26 @@ static def findVersionsOnNexus(Map versionMapIn, String nexusURL) {
             return 1
         }
         def json = new JsonSlurper().parseText(responseOutput)
-        RepoNames.addAll(json.items)
+        repoNames.addAll(json.items)
         nexusApiUrlRequest.disconnect()
+        Set set = new HashSet<String>()
+        set.add(it.value)
+        nexusSet.replace(it.key, set)
     }
-        
-    RepoNames.each {
-        String version = it.version
-        String lib = it.name
-        if (versionMapOut.containsKey(lib)){
-            //Used treeset to guarantee insertion order, order comes from API return
-            Set set = new TreeSet<String>()
-            set.add(versionMapOut.get(lib))
-            set.add(version)
-            versionMapOut.replace(lib, set)
-        } else {
-            def set = new HashSet<String>()
-            set.add(version)
-            versionMapOut.put(lib, version)
+
+    versionMapOut.each {
+        def set = new HashSet<String>()
+        String dependencyName = it.key
+        repoNames.each {
+            String version = it.version
+            String oib = it.name
+            if (lib == dependencyName) {
+                set.add(version)
+            }
         }
+        nexusSet.put(it.key, set)
     }
-    return versionMapOut
+    return nexusSet
 }
 
 static def generateMap() {
