@@ -60,8 +60,8 @@ pipeline {
                     pomList = sh(script: "find . -name 'pom.xml'", returnStdout: true).split("\n")
                     echo "POM list : ${pomList}"
                     versionMap = generateMap()
-                    readPom = readMavenPom file: '';
                     for(pom in pomList) {
+                        readPom = readMavenPom file: pom;
                         // Read dependency names and versions from a pom.xml by using the Pipeline Utility Steps plugin
                         for ( dependency in readPom.dependencies) {
                             versionMap << [(dependency.artifactId):dependency.version]
