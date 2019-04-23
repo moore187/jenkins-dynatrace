@@ -83,13 +83,20 @@ pipeline {
                         <tr>
                             <%= data.jenkinsBuildNumber %>
                         </tr>
+
+                        <tr>
+                            <td><%= ⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽ %></td>
+                        </tr>
+
                         <tr>
                             <td>Current version</td>
+                            <td> ⎜</td>
                             <td>Available versions</td>
                         </tr>
                         <% for(r in data.customProperties) { %>
                         <tr>
                             <td><%= r.key %></td>
+                            <td> ⎜</td>
                             <td><%= r.value %></td>
                         </tr>
                         <% } %>
@@ -161,7 +168,7 @@ static def dependencyJsonWriter(Map<String, String> buildVersionMap, Map<String,
     def json = new JsonBuilder(slurper)
     json.content.jenkinsBuildNumber.putAt("Jenkins Build Number", "${buildNumber}")
     buildVersionMap.each {
-        json.content.customProperties.putAt("Dependency: ${it.key} ${it.value}", "${repoNames[it.key]}")
+        json.content.customProperties.putAt("${it.key} - ${it.value}", repoNames[it.key])
     }
     json = json.toString()
     return json
